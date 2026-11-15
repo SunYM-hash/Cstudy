@@ -93,7 +93,7 @@ def shannon_panel(cell,letter,title,S,ymin,ymax,ystep):
         means=np.array([S[dep][i][0] for i in range(7)])
         ses=np.array([S[dep][i][1] for i in range(7)])
         pos=x+(-off if dep==0 else off)
-        ax.errorbar(pos,means,yerr=ses,fmt=marker,ls="none",ms=5.3,capsize=2.5,elinewidth=.9,mew=.8,color=col,zorder=3)
+        ax.errorbar(pos,means,yerr=ses,fmt=marker,ls="none",ms=4.5,capsize=3.2,capthick=1.0,elinewidth=1.0,mew=.65,color=col,zorder=3)
     ax.set_xlim(-.25,6.25); ax.set_ylim(ymin,ymax); ax.set_yticks(np.arange(ymin,ymax+1e-9,ystep))
     ax.set_ylabel("Shannon index",fontweight="bold")
     ax.set_xticks(x); ax.set_xticklabels(GROUPS,rotation=45,ha="right",fontsize=8.2)
@@ -105,7 +105,7 @@ def shannon_panel(cell,letter,title,S,ymin,ymax,ystep):
 def pcoa_panel(cell,letter,title,left,right):
     frame=panel_frame(cell,letter,title)
     # enlarged square axes occupying more of panel
-    rects=[[.12,.225,.365,.500],[.605,.225,.365,.500]]
+    rects=[[.10,.185,.385,.525],[.595,.185,.385,.525]]
     axes=[add_rel(frame,r) for r in rects]
     for ax,dep,dat,r in zip(axes,["0–20 cm","20–40 cm"],[left,right],rects):
         pts=np.asarray(dat["pts"],float)
@@ -117,7 +117,6 @@ def pcoa_panel(cell,letter,title,left,right):
         ax.set_ylim(ymin,ymax); ax.set_yticks(np.arange(ymin,ymax+1e-9,ystep))
         ax.axhline(0,color=".74",ls=(0,(3,3)),lw=.75,zorder=0)
         ax.axvline(0,color=".74",ls=(0,(3,3)),lw=.75,zorder=0)
-        ax.set_box_aspect(1.0)
         ax.set_xlabel(f"PCoA1 ({dat['p1']:.1f}%)",fontsize=9.3,fontweight="bold",labelpad=1.2)
         ax.set_ylabel("")
         ax.tick_params(axis="both",labelsize=8.0,pad=1.2)
@@ -129,11 +128,11 @@ def pcoa_panel(cell,letter,title,left,right):
         frame.text(xc,.770,f"Treatment: R$^2$={dat['r2']:.3f}, P=0.001",transform=frame.transAxes,ha="center",va="center",fontsize=8.2)
 
     # manual y labels: protected gutters inside outer panel
-    frame.text(.055,.475,f"PCoA2 ({left['p2']:.1f}%)",rotation=90,transform=frame.transAxes,ha="center",va="center",fontsize=9.3,fontweight="bold")
-    frame.text(.545,.475,f"PCoA2 ({right['p2']:.1f}%)",rotation=90,transform=frame.transAxes,ha="center",va="center",fontsize=9.3,fontweight="bold")
+    frame.text(.048,.448,f"PCoA2 ({left['p2']:.1f}%)",rotation=90,transform=frame.transAxes,ha="center",va="center",fontsize=9.3,fontweight="bold")
+    frame.text(.542,.448,f"PCoA2 ({right['p2']:.1f}%)",rotation=90,transform=frame.transAxes,ha="center",va="center",fontsize=9.3,fontweight="bold")
 
     hh=[Line2D([0],[0],marker="o",linestyle="None",markersize=5.8,markerfacecolor=TREAT_COLORS[i],markeredgecolor="black",markeredgewidth=.25,label=g) for i,g in enumerate(GROUPS)]
-    frame.legend(handles=hh,ncol=7,loc="lower center",bbox_to_anchor=(.5,.022),frameon=False,
+    frame.legend(handles=hh,ncol=7,loc="lower center",bbox_to_anchor=(.5,.030),frameon=False,
                  fontsize=8.0,handletextpad=.32,columnspacing=.62,borderaxespad=0,
                  title="Treatment",title_fontsize=8.6)
 
