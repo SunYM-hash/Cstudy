@@ -1,0 +1,42 @@
+name: fig3-render-temp
+on:
+  push:
+    branches:
+      - fig3-render-temp
+    paths:
+      - 'fig3_cloud/fig3_render.py'
+      - '.github/workflows/fig3-render-temp.yml'
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fig3-render-temp
+      - name: Install fonts and Python packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-liberation
+          python -m pip install --upgrade pip
+          python -m pip install numpy matplotlib pillow
+      - name: Render figure
+        run: python fig3_cloud/fig3_render.py
+      - name: Commit preview outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fig3_cloud/output/Fig3_v12_3x2.png fig3_cloud/output/Fig3_v12_3x2.pdf
+          git commit -m "Render Fig3 v12 [skip ci]" || true
+          git push
+      - name: Upload all outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fig3_v12_3x2_outputs
+          path: |
+            fig3_cloud/output/Fig3_v12_3x2.png
+            fig3_cloud/output/Fig3_v12_3x2.pdf
+            fig3_cloud/output/Fig3_v12_3x2_600dpi.tif
+            fig3_cloud/fig3_render.py
+          compression-level: 6
