@@ -167,28 +167,47 @@ def heat_panel(cell,letter,title,key):
 
 def summary_panel(cell,letter,title,keys):
     fr=panel_frame(cell,letter,title)
-    dfs=[]
-    for key in keys:
+
+    def top_depth(key,n=6):
         st=analyses[key][0].copy()
-        st=st[(st.p<0.05)&(st.MaxMeanRA>=0.10)].copy()
-        st["Label"]=[f"{g} ({d})" for g,d in zip(st.index,st.Depth)]
-        dfs.append(st)
-    d=pd.concat(dfs) if dfs else pd.DataFrame()
-    if len(d)==0:
-        # fallback to strongest effects so panel is never empty
-        d=pd.concat([analyses[k][0].head(0) for k in keys])
-    d=d.sort_values(["q","score","epsilon2"],ascending=[True,False,False]).head(14)
-    d=d.sort_values("epsilon2",ascending=True)
-    ax=add_rel(fr,[.34,.14,.61,.72])
-    y=np.arange(len(d))
-    cols=[COLORS.get(g,"#777") for g in d["Enriched"]]
-    ax.barh(y,d["epsilon2"].values,color=cols,height=.65)
-    ax.set_yticks(y);ax.set_yticklabels(d["Label"].values,fontstyle="italic",fontsize=8.2)
-    ax.set_xlabel(r"Treatment effect size ($\epsilon^2$)",fontweight="bold")
-    ax.spines["top"].set_visible(False);ax.spines["right"].set_visible(False)
-    ax.grid(axis="x",color=".88",lw=.6,zorder=0);ax.set_axisbelow(True)
-    handles=[Line2D([0],[0],marker="s",linestyle="None",markersize=7,markerfacecolor=COLORS[g],markeredgecolor="none",label=g) for g in GROUPS]
-    fr.legend(handles=handles,ncol=4,loc="lower center",bbox_to_anchor=(.5,.018),frameon=False,fontsize=7.7,handletextpad=.3,columnspacing=.7,title="Enriched treatment",title_fontsize=8.1)
+        d=st[(st.p<0.05)&(st.MaxMeanRA>=0.10)].copy()
+        if len(d)<n:
+            extra=st[(st.MaxMeanRA>=0.10)&(~st.index.isin(d.index))].sort_values(["p","score"],ascending=[True,False])
+            d=pd.concat([d,extra.head(n-len(d))])
+        d=d.sort_values(["q","score","epsilon2"],ascending=[True,False,False]).head(n)
+        d=d.sort_values("epsilon2",ascending=True)
+        return d
+
+    d1=top_depth(keys[0],6)
+    d2=top_depth(keys[1],6)
+    ax1=add_rel(fr,[.31,.535,.64,.285])
+    ax2=add_rel(fr,[.31,.175,.64,.285])
+
+    for ax,d,dep,showx in [(ax1,d1,"0–20 cm",False),(ax2,d2,"20–40 cm",True)]:
+        y=np.arange(len(d))
+        cols=[COLORS.get(g,"#777") for g in d["Enriched"]]
+        ax.barh(y,d["epsilon2"].values,color=cols,height=.64)
+        labs=[]
+        for genus,row in d.iterrows():
+            mark="**" if row["q"]<0.05 else ("*" if row["p"]<0.05 else "")
+            labs.append(genus+mark)
+        ax.set_yticks(y); ax.set_yticklabels(labs,fontstyle="italic",fontsize=7.9)
+        ax.set_xlim(0,1.02)
+        ax.grid(axis="x",color=".88",lw=.6,zorder=0);ax.set_axisbelow(True)
+        ax.spines["top"].set_visible(False);ax.spines["right"].set_visible(False)
+        ax.tick_params(axis="x",labelsize=7.8)
+        if showx:
+            ax.set_xlabel(r"Treatment effect size ($\epsilon^2$)",fontweight="bold",fontsize=9.2,labelpad=2)
+        else:
+            ax.set_xticklabels([])
+        fr.text(.63,.842 if dep=="0–20 cm" else .482,dep,transform=fr.transAxes,
+                ha="center",va="center",fontsize=9.4,fontweight="bold")
+
+    handles=[Line2D([0],[0],marker="s",linestyle="None",markersize=6.5,
+                    markerfacecolor=COLORS[g],markeredgecolor="none",label=g) for g in GROUPS]
+    fr.legend(handles=handles,ncol=4,loc="lower center",bbox_to_anchor=(.5,.018),frameon=False,
+              fontsize=7.3,handletextpad=.28,columnspacing=.62,borderaxespad=0,
+              title="Enriched treatment",title_fontsize=7.8)
 
 heat_panel(outer[0,0],"A","Bacterial responsive genera — 0–20 cm","b20")
 heat_panel(outer[0,1],"B","Bacterial responsive genera — 20–40 cm","b40")
@@ -197,9 +216,9 @@ heat_panel(outer[1,1],"D","Fungal responsive genera — 20–40 cm","f40")
 summary_panel(outer[2,0],"E","Bacterial differential genera summary",["b20","b40"])
 summary_panel(outer[2,1],"F","Fungal differential genera summary",["f20","f40"])
 
-fig.savefig(f"{out}/Fig4_v1_preview.png",dpi=150,facecolor="white",bbox_inches="tight",pad_inches=.02)
-fig.savefig(f"{out}/Fig4_v1_3x2.png",dpi=450,facecolor="white",bbox_inches="tight",pad_inches=.02)
-fig.savefig(f"{out}/Fig4_v1_3x2.pdf",facecolor="white",bbox_inches="tight",pad_inches=.02)
-fig.savefig(f"{out}/Fig4_v1_3x2_600dpi.tif",dpi=600,facecolor="white",bbox_inches="tight",pad_inches=.02,pil_kwargs={"compression":"tiff_lzw"})
+fig.savefig(f"{out}/Fig4_v2_preview.png",dpi=150,facecolor="white",bbox_inches="tight",pad_inches=.02)
+fig.savefig(f"{out}/Fig4_v2_3x2.png",dpi=450,facecolor="white",bbox_inches="tight",pad_inches=.02)
+fig.savefig(f"{out}/Fig4_v2_3x2.pdf",facecolor="white",bbox_inches="tight",pad_inches=.02)
+fig.savefig(f"{out}/Fig4_v2_3x2_600dpi.tif",dpi=600,facecolor="white",bbox_inches="tight",pad_inches=.02,pil_kwargs={"compression":"tiff_lzw"})
 plt.close(fig)
 print("Fig4 complete")
