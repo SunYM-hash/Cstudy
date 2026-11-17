@@ -26,6 +26,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin fig4-render-temp || true
           git add fig4_cloud/output/Fig4_v1_3x2.png fig4_cloud/output/Fig4_v1_preview.png fig4_cloud/output/Fig4_v1_3x2.pdf fig4_cloud/output/*.csv
           git commit -m "Render Fig4 v1 [skip ci]" || true
           git push
