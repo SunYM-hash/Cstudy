@@ -197,6 +197,7 @@ heat_panel(outer[1,1],"D","Fungal responsive genera — 20–40 cm","f40")
 summary_panel(outer[2,0],"E","Bacterial differential genera summary",["b20","b40"])
 summary_panel(outer[2,1],"F","Fungal differential genera summary",["f20","f40"])
 
+fig.savefig(f"{out}/Fig4_v1_preview.png",dpi=150,facecolor="white",bbox_inches="tight",pad_inches=.02)
 fig.savefig(f"{out}/Fig4_v1_3x2.png",dpi=450,facecolor="white",bbox_inches="tight",pad_inches=.02)
 fig.savefig(f"{out}/Fig4_v1_3x2.pdf",facecolor="white",bbox_inches="tight",pad_inches=.02)
 fig.savefig(f"{out}/Fig4_v1_3x2_600dpi.tif",dpi=600,facecolor="white",bbox_inches="tight",pad_inches=.02,pil_kwargs={"compression":"tiff_lzw"})
