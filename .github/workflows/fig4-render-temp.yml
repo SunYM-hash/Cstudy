@@ -1,0 +1,39 @@
+name: fig4-render-temp
+on:
+  push:
+    branches: [fig4-render-temp]
+    paths:
+      - 'fig4_cloud/**'
+      - '.github/workflows/fig4-render-temp.yml'
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fig4-render-temp
+      - name: Install dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-liberation
+          python -m pip install --upgrade pip
+          python -m pip install numpy pandas scipy matplotlib pillow
+      - name: Analyze and render Fig4
+        run: python fig4_cloud/fig4_analysis.py
+      - name: Commit preview outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add fig4_cloud/output/Fig4_v1_3x2.png fig4_cloud/output/Fig4_v1_3x2.pdf fig4_cloud/output/*.csv
+          git commit -m "Render Fig4 v1 [skip ci]" || true
+          git push
+      - name: Upload outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fig4_v1_3x2_outputs
+          path: |
+            fig4_cloud/output/
+            fig4_cloud/fig4_analysis.py
+          compression-level: 6
